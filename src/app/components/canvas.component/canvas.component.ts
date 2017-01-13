@@ -21,10 +21,12 @@ export class CanvasComponent implements OnInit {
   @ViewChild("myCanvas") myCanvas;
 
   constructor(private canvasService:CanvasService, private socketService:SocketService){
-    this.socket = io("http://localhost:4300");
+    //this.socket = io("http://localhost:4300");
+
+    //this.socket = io("http://10.1.160.17:4300");
 
     //public URL
-    //this.socket = io("http://159.203.171.1:4300");
+   this.socket = io("http://138.197.90.21:4300");
 
 
   }
@@ -55,38 +57,31 @@ export class CanvasComponent implements OnInit {
 
   }
 
+  scaleToCanvas(mouse, canvasSize, screenSize){
+      return {
+        x: (mouse.x * (canvasSize.width/screenSize.width)),
+        y: (mouse.y * (canvasSize.height/screenSize.height))
+      }
+  }
 
   draw(data){
     //console.info('%s - drawing - socket: %s - color: %s', data.ip, data.id, this.canvasService.layers[data.id].color);
     this.context.lineCap = 'round';
     this.context.lineWidth = this.canvasService.layers[data.id].lineWidth;
 
-
-
-    // //shadow
-    // this.context.beginPath();
-    // let offset = 15;
-    // this.context.strokeStyle = '#000';
-    // this.context.moveTo(this.canvasService.layers[data.id].previousX+offset, this.canvasService.layers[data.id].previousY+offset);
-    // this.context.lineTo(data.x+offset, data.y+offset);
-    // this.context.stroke();
-
-
+    let mouse = this.scaleToCanvas(data, this.context.canvas, data.workArea)
 
     //main line
     this.context.beginPath();
     this.context.strokeStyle = this.canvasService.layers[data.id].color;
-    // this.context.shadowColor = '#000';
-    // this.context.shadowBlur = 10;
-    // this.context.shadowOffsetX = this.context.lineWidth*2;
-    // this.context.shadowOffsetY = this.context.lineWidth*2;
+
     this.context.moveTo(this.canvasService.layers[data.id].previousX, this.canvasService.layers[data.id].previousY);
-    this.context.lineTo(data.x, data.y);
+    this.context.lineTo(mouse.x, mouse.y);
     this.context.stroke();
 
 
-    this.canvasService.layers[data.id].previousX = data.x;
-    this.canvasService.layers[data.id].previousY = data.y;
+    this.canvasService.layers[data.id].previousX = mouse.x;
+    this.canvasService.layers[data.id].previousY = mouse.y;
 
   }
 
